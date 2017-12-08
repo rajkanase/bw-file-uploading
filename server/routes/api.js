@@ -28,13 +28,13 @@ var storage = multer.diskStorage({
     }
 })
   
-var upload = multer({ storage: storage }).single('avatar');
+var upload = multer({ storage: storage }).single('file');
 
-router.post('/up', function (req, res) {
+router.post('/', function (req, res) {
     console.log('in back');
     upload(req, res, function (err) {
       if (err) {
-          console.log('err');
+          console.log(err);
         res.json({success:false, message:err});
       }else{
           console.log('file up');

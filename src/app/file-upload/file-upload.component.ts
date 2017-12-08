@@ -1,7 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { Http } from '@angular/http';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import {FormsModule,ReactiveFormsModule} from '@angular/forms';
+import { Component, OnInit} from '@angular/core';
 import { UploadService } from '../upload.service';
 
 
@@ -12,61 +9,38 @@ import { UploadService } from '../upload.service';
 })
 export class FileUploadComponent implements OnInit {
 
+  selectedFiles: FileList
+  currentFileUpload: File
+
+  progress: { percentage: number } = { percentage: 0 }
+
   ngOnInit(){
     
   }
-  form: FormGroup;
-  loading: boolean = false;
-
-  @ViewChild('fileInput') fileInput: ElementRef;
-
+  
   constructor(
-    private fb: FormBuilder,
-    private http:Http,
     private upSer:UploadService
-  ) {
-    this.createForm();
+  ) {}
+
+
+
+
+
+
+
+  selectFile(event) {
+    this.selectedFiles = event.target.files;
   }
 
-  createForm() {
-    this.form = this.fb.group({
-      name: ['', Validators.required],
-      avatar: null
-    });
-  }
+  upload() {
+    this.progress.percentage = 0;
 
-  onFileChange(event) {
-    let reader = new FileReader();
-    if(event.target.files && event.target.files.length > 0) {
-      let file = event.target.files[0];
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        this.form.get('avatar').setValue({
-          filename: file.name,
-          filetype: file.type,
-          value: reader.result.split(',')[1]
-        })
-      };
-    }
-  }
-
-  onSubmit() {
-    console.log('on Sub');
+    this.currentFileUpload = this.selectedFiles.item(0)
+    // console.log("In Upload fun", this.currentFileUpload);
     
-    const formModel = this.form.value;
-    this.loading = true;
-    this.http.post('http://localhost:3000/api/up/',formModel).subscribe(res=>{
-      setTimeout(() => {
-        console.log(res);
-        alert('done!');
-        this.loading = false;
-      }, 1000);
-    });
-    
-  }
+    this.upSer.pushFileToStorage(this.currentFileUpload).subscribe(res =>console.log(res));
 
-  clearFile() {
-    this.form.get('avatar').setValue(null);
-    this.fileInput.nativeElement.value = '';
+
+    // this.selectedFiles = undefined
   }
 }
